@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const ProtectedRoute: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, firebaseUser, loading } = useAuth();
 
   if (loading) {
     return (
@@ -17,8 +17,12 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
-  if (!user) {
+  if (!firebaseUser) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (firebaseUser && !user) {
+    return <Navigate to="/complete-profile" replace />;
   }
 
   return <Outlet />;

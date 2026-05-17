@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import CompleteProfilePage from '../pages/auth/CompleteProfilePage';
 import DashboardPage from '../pages/DashboardPage';
 import ProfilePage from '../pages/ProfilePage';
 import RoomPage from '../pages/RoomPage';
@@ -15,6 +16,8 @@ const AppRouter: React.FC = () => {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/complete-profile" element={<CompleteProfilePage />} />
+
 
         {/* Rutas Protegidas */}
         <Route element={<ProtectedRoute />}>

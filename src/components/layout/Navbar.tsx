@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
 
   return (
     <nav 
@@ -22,9 +22,9 @@ const Navbar: React.FC = () => {
       </div>
       
       <div>
-        {user ? (
+        {firebaseUser ? (
           <div className="flex items-center gap-4">
-            <span>Hola, {user.name}</span>
+            {user ? <span>Hola, {user.name}</span> : <span>Configurando perfil...</span>}
             <button 
               onClick={logout}
               className="bg-red-500/10 text-red-500 px-3 py-1 rounded hover:bg-red-500/20 transition-colors"
