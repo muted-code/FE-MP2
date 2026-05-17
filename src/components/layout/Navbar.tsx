@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
       className="bg-surface text-text p-4 flex justify-between items-center shadow-md"
     >
       <div className="flex items-center gap-6">
-        <Link to="/" className="text-xl font-bold text-primary">Study Room</Link>
+        <Link to={user ? "/dashboard" : "/"} className="text-xl font-bold text-primary">Study Room</Link>
         {user && (
           <>
             <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
