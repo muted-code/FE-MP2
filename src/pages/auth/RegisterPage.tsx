@@ -36,9 +36,18 @@ const RegisterPage: React.FC = () => {
     const checkUser = async () => {
       if (usernameValue && usernameValue.length >= 3) {
         setCheckingUsername(true);
-        const available = await authService.checkUsername(usernameValue);
-        setIsUsernameAvailable(available);
-        setCheckingUsername(false);
+        try {
+          const available = await authService.checkUsername(usernameValue);
+          setIsUsernameAvailable(available);
+          if (errorMsg === 'Error al conectar con el servidor. Verifica que el backend esté encendido.') {
+            setErrorMsg('');
+          }
+        } catch (error) {
+          setIsUsernameAvailable(null);
+          setErrorMsg('Error al conectar con el servidor. Verifica que el backend esté encendido.');
+        } finally {
+          setCheckingUsername(false);
+        }
       } else {
         setIsUsernameAvailable(null);
       }

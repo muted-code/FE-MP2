@@ -31,9 +31,18 @@ const CompleteProfilePage: React.FC = () => {
     const checkUser = async () => {
       if (usernameValue && usernameValue.length >= 3) {
         setChecking(true);
-        const available = await authService.checkUsername(usernameValue);
-        setIsAvailable(available);
-        setChecking(false);
+        try {
+          const available = await authService.checkUsername(usernameValue);
+          setIsAvailable(available);
+          if (errorMsg === 'Error al conectar con el servidor. Verifica que el backend esté encendido.') {
+            setErrorMsg('');
+          }
+        } catch (error) {
+          setIsAvailable(null);
+          setErrorMsg('Error al conectar con el servidor. Verifica que el backend esté encendido.');
+        } finally {
+          setChecking(false);
+        }
       } else {
         setIsAvailable(null);
       }
@@ -61,8 +70,10 @@ const CompleteProfilePage: React.FC = () => {
     try {
       await authService.register({
         name: firebaseUser.displayName || 'Usuario',
+        lastName: '',
         username: data.username,
         email: firebaseUser.email || '',
+        avatar: firebaseUser.photoURL || '',
       });
       await refreshProfile();
       navigate('/dashboard');
