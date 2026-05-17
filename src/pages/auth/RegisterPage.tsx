@@ -9,7 +9,8 @@ import Button from '../../components/ui/Button';
 import PageWrapper from '../../components/layout/PageWrapper';
 
 const schema = z.object({
-  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
   username: z.string().min(3, 'El nombre de usuario debe tener al menos 3 caracteres').max(20, 'Máximo 20 caracteres'),
   email: z.string().email('Correo electrónico inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
@@ -60,7 +61,7 @@ const RegisterPage: React.FC = () => {
       
       // 2. Guardar el perfil en el Backend
       await authService.register({
-        name: data.name,
+        name: `${data.firstName} ${data.lastName}`,
         username: data.username,
         email: data.email,
       });
@@ -95,20 +96,38 @@ const RegisterPage: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
         >
-          <div className="space-y-1">
-            <label htmlFor="name" className="block text-sm font-medium text-muted">
-              Nombre Completo
-            </label>
-            <input
-              id="name"
-              type="text"
-              {...register('name')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.name ? 'border-red-500' : 'border-white/10'}
-              `}
-              placeholder="Ej. Juan Pérez"
-            />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label htmlFor="firstName" className="block text-sm font-medium text-muted">
+                Nombres
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                {...register('firstName')}
+                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
+                  ${errors.firstName ? 'border-red-500' : 'border-white/10'}
+                `}
+                placeholder="Juan"
+              />
+              {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="lastName" className="block text-sm font-medium text-muted">
+                Apellidos
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                {...register('lastName')}
+                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
+                  ${errors.lastName ? 'border-red-500' : 'border-white/10'}
+                `}
+                placeholder="Pérez"
+              />
+              {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>}
+            </div>
           </div>
 
           <div className="space-y-1">

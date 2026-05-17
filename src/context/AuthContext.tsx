@@ -7,7 +7,7 @@ import {
   signOut
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { auth, googleProvider } from '../config/firebase';
+import { auth, googleProvider } from '../firebase/firebaseConfig';
 import { authService } from '../services/authService';
 import type { User } from '../types';
 
