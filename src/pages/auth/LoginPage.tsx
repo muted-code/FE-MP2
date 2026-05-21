@@ -7,6 +7,7 @@ import { LogIn } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../../components/ui/Button';
 import PageWrapper from '../../components/layout/PageWrapper';
+import { motion } from 'motion/react';
 
 const schema = z.object({
   email: z.string().email('Correo electrónico inválido'),
@@ -52,13 +53,30 @@ const LoginPage: React.FC = () => {
 
   return (
     <PageWrapper ariaLabel="Página de inicio de sesión">
-      <div className="max-w-md mx-auto bg-surface p-8 rounded-xl shadow-lg border border-white/5">
-        <h1 className="text-3xl font-bold mb-6 text-center text-primary">Iniciar Sesión</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
+        className="max-w-md mx-auto bg-surface/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/10"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h1 className="text-3xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+            Iniciar Sesión
+          </h1>
+        </motion.div>
         
         {errorMsg && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm"
+          >
             {errorMsg}
-          </div>
+          </motion.div>
         )}
 
         <form 
@@ -67,7 +85,12 @@ const LoginPage: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6"
         >
-          <div className="space-y-2">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-2"
+          >
             <label htmlFor="email" className="block text-sm font-medium text-muted">
               Correo Electrónico
             </label>
@@ -75,15 +98,20 @@ const LoginPage: React.FC = () => {
               id="email"
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.email ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
               `}
               placeholder="tu@email.com"
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-          </div>
+          </motion.div>
 
-          <div className="space-y-2">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-2"
+          >
             <label htmlFor="password" className="block text-sm font-medium text-muted">
               Contraseña
             </label>
@@ -91,29 +119,45 @@ const LoginPage: React.FC = () => {
               id="password"
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.password ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                ${errors.password ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
               `}
               placeholder="••••••••"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-          </div>
+          </motion.div>
 
-          <Button type="submit" variant="primary" className="w-full flex justify-center items-center gap-2" disabled={isSubmitting}>
-            <LogIn size={18} />
-            {isSubmitting ? 'Iniciando...' : 'Entrar'}
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Button type="submit" variant="primary" className="w-full flex justify-center items-center gap-2 py-2.5 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all" disabled={isSubmitting}>
+              <LogIn size={18} />
+              {isSubmitting ? 'Iniciando...' : 'Entrar'}
+            </Button>
+          </motion.div>
         </form>
 
-        <div className="my-6 flex items-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="my-6 flex items-center"
+        >
           <div className="flex-grow border-t border-white/10"></div>
-          <span className="px-3 text-muted text-sm">o</span>
+          <span className="px-3 text-muted text-sm font-medium">O</span>
           <div className="flex-grow border-t border-white/10"></div>
-        </div>
+        </motion.div>
 
-        <button 
+        <motion.button 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleGoogleLogin}
-          className="w-full px-4 py-2 bg-white text-gray-900 rounded-md font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2.5 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 flex items-center justify-center gap-3 shadow-md"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -122,15 +166,20 @@ const LoginPage: React.FC = () => {
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
           Continuar con Google
-        </button>
+        </motion.button>
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-6 text-center text-sm text-muted"
+        >
           ¿No tienes cuenta?{' '}
-          <Link to="/register" className="text-secondary hover:underline">
+          <Link to="/register" className="text-secondary hover:text-primary font-medium transition-colors hover:underline">
             Regístrate aquí
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </PageWrapper>
   );
 };

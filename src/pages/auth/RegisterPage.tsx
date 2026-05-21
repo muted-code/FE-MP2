@@ -7,6 +7,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../services/authService';
 import Button from '../../components/ui/Button';
 import PageWrapper from '../../components/layout/PageWrapper';
+import { motion } from 'motion/react';
+import { UserPlus, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
 const schema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -65,17 +67,14 @@ const RegisterPage: React.FC = () => {
     
     setErrorMsg('');
     try {
-      // 1. Crear usuario en Firebase Auth
       await registerWithEmail(data.email, data.password);
       
-      // 2. Guardar el perfil en el Backend
       await authService.register({
         name: `${data.firstName} ${data.lastName}`,
         username: data.username,
         email: data.email,
       });
 
-      // 3. Refrescar el perfil y redirigir
       await refreshProfile();
       navigate('/dashboard');
     } catch (error: any) {
@@ -90,22 +89,44 @@ const RegisterPage: React.FC = () => {
 
   return (
     <PageWrapper ariaLabel="Página de registro">
-      <div className="max-w-md mx-auto bg-surface p-8 rounded-xl shadow-lg border border-white/5">
-        <h1 className="text-3xl font-bold mb-6 text-center text-primary">Crear Cuenta</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
+        className="max-w-md mx-auto bg-surface/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/10"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h1 className="text-3xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+            Crear Cuenta
+          </h1>
+        </motion.div>
         
         {errorMsg && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm"
+          >
             {errorMsg}
-          </div>
+          </motion.div>
         )}
 
         <form 
           role="form" 
           aria-label="Formulario de registro" 
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
+          className="space-y-5"
         >
-          <div className="grid grid-cols-2 gap-4">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-2 gap-4"
+          >
             <div className="space-y-1">
               <label htmlFor="firstName" className="block text-sm font-medium text-muted">
                 Nombres
@@ -114,8 +135,8 @@ const RegisterPage: React.FC = () => {
                 id="firstName"
                 type="text"
                 {...register('firstName')}
-                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                  ${errors.firstName ? 'border-red-500' : 'border-white/10'}
+                className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                  ${errors.firstName ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
                 `}
                 placeholder="Juan"
               />
@@ -130,35 +151,51 @@ const RegisterPage: React.FC = () => {
                 id="lastName"
                 type="text"
                 {...register('lastName')}
-                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                  ${errors.lastName ? 'border-red-500' : 'border-white/10'}
+                className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                  ${errors.lastName ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
                 `}
                 placeholder="Pérez"
               />
               {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="space-y-1">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-1 relative"
+          >
             <label htmlFor="username" className="block text-sm font-medium text-muted">
               Nombre de Usuario
             </label>
-            <input
-              id="username"
-              type="text"
-              {...register('username')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.username ? 'border-red-500' : isUsernameAvailable === false ? 'border-red-500' : isUsernameAvailable === true ? 'border-green-500' : 'border-white/10'}
-              `}
-              placeholder="juanp"
-            />
+            <div className="relative">
+              <input
+                id="username"
+                type="text"
+                {...register('username')}
+                className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300 pr-10
+                  ${errors.username ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : isUsernameAvailable === false ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : isUsernameAvailable === true ? 'border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]' : 'border-white/10 hover:border-white/30'}
+                `}
+                placeholder="juanp"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                {checkingUsername && <Loader2 className="animate-spin text-muted" size={18} />}
+                {!checkingUsername && isUsernameAvailable === true && <CheckCircle2 className="text-green-500" size={18} />}
+                {!checkingUsername && isUsernameAvailable === false && <XCircle className="text-red-500" size={18} />}
+              </div>
+            </div>
             {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
-            {checkingUsername && <p className="text-muted text-xs mt-1">Comprobando disponibilidad...</p>}
             {!checkingUsername && isUsernameAvailable === true && <p className="text-green-500 text-xs mt-1">¡Nombre de usuario disponible!</p>}
             {!checkingUsername && isUsernameAvailable === false && <p className="text-red-500 text-xs mt-1">Este nombre de usuario ya está en uso.</p>}
-          </div>
+          </motion.div>
 
-          <div className="space-y-1">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-1"
+          >
             <label htmlFor="email" className="block text-sm font-medium text-muted">
               Correo Electrónico
             </label>
@@ -166,15 +203,20 @@ const RegisterPage: React.FC = () => {
               id="email"
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.email ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
               `}
               placeholder="tu@email.com"
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-          </div>
+          </motion.div>
 
-          <div className="space-y-1">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-1"
+          >
             <label htmlFor="password" className="block text-sm font-medium text-muted">
               Contraseña
             </label>
@@ -182,31 +224,44 @@ const RegisterPage: React.FC = () => {
               id="password"
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.password ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-2.5 bg-bg/50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-text transition-all duration-300
+                ${errors.password ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-white/10 hover:border-white/30'}
               `}
               placeholder="••••••••"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-          </div>
+          </motion.div>
 
-          <Button 
-            type="submit" 
-            variant="primary" 
-            className="w-full mt-4"
-            disabled={isSubmitting || checkingUsername || isUsernameAvailable === false}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="pt-2"
           >
-            {isSubmitting ? 'Registrando...' : 'Registrarse'}
-          </Button>
+            <Button 
+              type="submit" 
+              variant="primary" 
+              className="w-full flex justify-center items-center gap-2 py-2.5 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+              disabled={isSubmitting || checkingUsername || isUsernameAvailable === false}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <UserPlus size={18} />}
+              {isSubmitting ? 'Registrando...' : 'Registrarse'}
+            </Button>
+          </motion.div>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-6 text-center text-sm text-muted"
+        >
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-secondary hover:underline">
+          <Link to="/login" className="text-secondary hover:text-primary font-medium transition-colors hover:underline">
             Inicia sesión
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </PageWrapper>
   );
 };
