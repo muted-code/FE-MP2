@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
 import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  isFirstLoad?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isFirstLoad = true }) => {
   const { user, firebaseUser, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isLoginRoute = location.pathname === '/login';
+  const isRegisterRoute = location.pathname === '/register';
 
   return (
     <div className="sticky top-4 z-50 px-4 md:px-8 max-w-7xl mx-auto w-full">
       <motion.nav 
-        initial={{ y: -50, opacity: 0 }}
+        initial={isFirstLoad ? { y: -50, opacity: 0 } : false}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         role="navigation" 
@@ -80,12 +88,16 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login" className="border border-white/10 hover:bg-surface px-4 py-1.5 rounded-full text-sm font-medium transition duration-300">
-                Iniciar Sesión
-              </Link>
-              <Link to="/register" className="bg-primary hover:shadow-[0px_0px_20px_5px] hover:shadow-primary/40 text-white px-4 py-1.5 rounded-full text-sm font-medium transition duration-300">
-                Registrarse
-              </Link>
+              {!isLoginRoute && (
+                <Link to="/login" className="border border-white/10 hover:bg-surface px-4 py-1.5 rounded-full text-sm font-medium transition duration-300">
+                  Iniciar Sesión
+                </Link>
+              )}
+              {!isRegisterRoute && (
+                <Link to="/register" className="bg-primary hover:shadow-[0px_0px_20px_5px] hover:shadow-primary/40 text-white px-4 py-1.5 rounded-full text-sm font-medium transition duration-300">
+                  Registrarse
+                </Link>
+              )}
             </div>
           )}
 
@@ -130,12 +142,16 @@ const Navbar: React.FC = () => {
             </button>
           ) : (
             <div className="flex flex-col gap-2 mt-2">
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="border border-white/10 text-center px-4 py-2 rounded-xl font-medium">
-                Iniciar Sesión
-              </Link>
-              <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="bg-primary text-white text-center px-4 py-2 rounded-xl font-medium">
-                Registrarse
-              </Link>
+              {!isLoginRoute && (
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="border border-white/10 text-center px-4 py-2 rounded-xl font-medium">
+                  Iniciar Sesión
+                </Link>
+              )}
+              {!isRegisterRoute && (
+                <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="bg-primary text-white text-center px-4 py-2 rounded-xl font-medium">
+                  Registrarse
+                </Link>
+              )}
             </div>
           )}
         </motion.div>
