@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
 import { motion } from 'motion/react';
-import { LogOut, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, firebaseUser, logout } = useAuth();
@@ -59,8 +59,8 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center gap-4 ml-2">
               {user ? (
                  <div className="flex items-center gap-2">
-                   {user.avatar ? (
-                     <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-primary/50" />
+                   {user.avatarUrl ? (
+                     <img src={user.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-primary/50" />
                    ) : (
                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary/30">
                        {user.name.charAt(0).toUpperCase()}
