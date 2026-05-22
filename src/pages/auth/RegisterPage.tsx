@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../services/authService';
-import Button from '../../components/ui/Button';
 import PageWrapper from '../../components/layout/PageWrapper';
 
 const schema = z.object({
@@ -90,11 +89,17 @@ const RegisterPage: React.FC = () => {
 
   return (
     <PageWrapper ariaLabel="Página de registro">
-      <div className="max-w-md mx-auto bg-surface p-8 rounded-xl shadow-lg border border-white/5">
-        <h1 className="text-3xl font-bold mb-6 text-center text-primary">Crear Cuenta</h1>
+      <div className="max-w-md mx-auto glass-panel p-8 rounded-2xl relative overflow-hidden">
+        {/* Glow effect in background */}
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-secondary/20 rounded-full blur-[50px] pointer-events-none"></div>
+
+        <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
+          Crear Cuenta
+        </h1>
         
         {errorMsg && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm shadow-[0_0_10px_rgba(239,68,68,0.2)]">
             {errorMsg}
           </div>
         )}
@@ -103,7 +108,7 @@ const RegisterPage: React.FC = () => {
           role="form" 
           aria-label="Formulario de registro" 
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
+          className="space-y-4 relative z-10"
         >
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -114,12 +119,12 @@ const RegisterPage: React.FC = () => {
                 id="firstName"
                 type="text"
                 {...register('firstName')}
-                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                  ${errors.firstName ? 'border-red-500' : 'border-white/10'}
+                className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                  ${errors.firstName ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
                 `}
                 placeholder="Juan"
               />
-              {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>}
+              {errors.firstName && <p className="text-red-400 text-xs mt-1">{errors.firstName.message}</p>}
             </div>
 
             <div className="space-y-1">
@@ -130,12 +135,12 @@ const RegisterPage: React.FC = () => {
                 id="lastName"
                 type="text"
                 {...register('lastName')}
-                className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                  ${errors.lastName ? 'border-red-500' : 'border-white/10'}
+                className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                  ${errors.lastName ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
                 `}
                 placeholder="Pérez"
               />
-              {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>}
+              {errors.lastName && <p className="text-red-400 text-xs mt-1">{errors.lastName.message}</p>}
             </div>
           </div>
 
@@ -147,15 +152,15 @@ const RegisterPage: React.FC = () => {
               id="username"
               type="text"
               {...register('username')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.username ? 'border-red-500' : isUsernameAvailable === false ? 'border-red-500' : isUsernameAvailable === true ? 'border-green-500' : 'border-white/10'}
+              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                ${errors.username || isUsernameAvailable === false ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : isUsernameAvailable === true ? 'border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]' : ''}
               `}
               placeholder="juanp"
             />
-            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
+            {errors.username && <p className="text-red-400 text-xs mt-1">{errors.username.message}</p>}
             {checkingUsername && <p className="text-muted text-xs mt-1">Comprobando disponibilidad...</p>}
-            {!checkingUsername && isUsernameAvailable === true && <p className="text-green-500 text-xs mt-1">¡Nombre de usuario disponible!</p>}
-            {!checkingUsername && isUsernameAvailable === false && <p className="text-red-500 text-xs mt-1">Este nombre de usuario ya está en uso.</p>}
+            {!checkingUsername && isUsernameAvailable === true && <p className="text-green-400 text-xs mt-1">¡Nombre de usuario disponible!</p>}
+            {!checkingUsername && isUsernameAvailable === false && <p className="text-red-400 text-xs mt-1">Este nombre de usuario ya está en uso.</p>}
           </div>
 
           <div className="space-y-1">
@@ -166,12 +171,12 @@ const RegisterPage: React.FC = () => {
               id="email"
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.email ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="tu@email.com"
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-1">
@@ -182,27 +187,26 @@ const RegisterPage: React.FC = () => {
               id="password"
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.password ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                ${errors.password ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="••••••••"
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
           </div>
 
-          <Button 
+          <button 
             type="submit" 
-            variant="primary" 
-            className="w-full mt-4"
+            className={`w-full py-3 mt-6 bg-gradient-to-r from-primary to-secondary hover:from-[#00c3ff] hover:to-[#ff0055] text-white font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex justify-center items-center gap-2 transform hover:scale-[1.02] active:scale-95 ${isSubmitting || checkingUsername || isUsernameAvailable === false ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isSubmitting || checkingUsername || isUsernameAvailable === false}
           >
             {isSubmitting ? 'Registrando...' : 'Registrarse'}
-          </Button>
+          </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <p className="mt-8 text-center text-sm text-muted relative z-10">
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-secondary hover:underline">
+          <Link to="/login" className="text-primary hover:text-[#00c3ff] hover:underline font-medium transition-colors">
             Inicia sesión
           </Link>
         </p>

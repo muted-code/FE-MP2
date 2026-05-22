@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { LogIn } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import Button from '../../components/ui/Button';
 import PageWrapper from '../../components/layout/PageWrapper';
 
 const schema = z.object({
@@ -16,7 +15,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const LoginPage: React.FC = () => {
-  const { loginWithEmail, loginWithGoogle } = useAuth();
+  const { loginWithEmail, loginWithGoogle, user, firebaseUser, loading } = useAuth();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -24,11 +23,20 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(schema),
   });
 
+  useEffect(() => {
+    if (!loading && firebaseUser) {
+      if (user) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/complete-profile', { replace: true });
+      }
+    }
+  }, [loading, firebaseUser, user, navigate]);
+
   const onSubmit = async (data: FormData) => {
     setErrorMsg('');
     try {
       await loginWithEmail(data.email, data.password);
-      navigate('/dashboard');
     } catch (error: any) {
       console.error(error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
@@ -43,7 +51,6 @@ const LoginPage: React.FC = () => {
     setErrorMsg('');
     try {
       await loginWithGoogle();
-      navigate('/dashboard');
     } catch (error: any) {
       console.error(error);
       setErrorMsg('Error al iniciar sesión con Google.');
@@ -52,11 +59,17 @@ const LoginPage: React.FC = () => {
 
   return (
     <PageWrapper ariaLabel="Página de inicio de sesión">
-      <div className="max-w-md mx-auto bg-surface p-8 rounded-xl shadow-lg border border-white/5">
-        <h1 className="text-3xl font-bold mb-6 text-center text-primary">Iniciar Sesión</h1>
+      <div className="max-w-md mx-auto glass-panel p-8 rounded-2xl relative overflow-hidden">
+        {/* Glow effect in background */}
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[50px] pointer-events-none"></div>
+
+        <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
+          Iniciar Sesión
+        </h1>
         
         {errorMsg && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm shadow-[0_0_10px_rgba(239,68,68,0.2)]">
             {errorMsg}
           </div>
         )}
@@ -65,7 +78,7 @@ const LoginPage: React.FC = () => {
           role="form" 
           aria-label="Formulario de inicio de sesión" 
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
+          className="space-y-6 relative z-10"
         >
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-muted">
@@ -75,12 +88,12 @@ const LoginPage: React.FC = () => {
               id="email"
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.email ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="tu@email.com"
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -91,29 +104,34 @@ const LoginPage: React.FC = () => {
               id="password"
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-2 bg-bg border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text transition-colors
-                ${errors.password ? 'border-red-500' : 'border-white/10'}
+              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+                ${errors.password ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="••••••••"
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
           </div>
 
-          <Button type="submit" variant="primary" className="w-full flex justify-center items-center gap-2" disabled={isSubmitting}>
+          <button 
+            type="submit" 
+            className="w-full py-3 bg-gradient-to-r from-primary to-secondary hover:from-[#00c3ff] hover:to-[#ff0055] text-white font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex justify-center items-center gap-2 transform hover:scale-[1.02] active:scale-95" 
+            disabled={isSubmitting || loading}
+          >
             <LogIn size={18} />
-            {isSubmitting ? 'Iniciando...' : 'Entrar'}
-          </Button>
+            {isSubmitting || loading ? 'Iniciando...' : 'Entrar'}
+          </button>
         </form>
 
-        <div className="my-6 flex items-center">
+        <div className="my-6 flex items-center relative z-10">
           <div className="flex-grow border-t border-white/10"></div>
-          <span className="px-3 text-muted text-sm">o</span>
+          <span className="px-3 text-muted text-sm uppercase tracking-widest">O</span>
           <div className="flex-grow border-t border-white/10"></div>
         </div>
 
         <button 
           onClick={handleGoogleLogin}
-          className="w-full px-4 py-2 bg-white text-gray-900 rounded-md font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 flex items-center justify-center gap-2"
+          disabled={loading}
+          className="w-full px-4 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 backdrop-blur-sm transform hover:scale-[1.02] relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -124,9 +142,9 @@ const LoginPage: React.FC = () => {
           Continuar con Google
         </button>
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <p className="mt-8 text-center text-sm text-muted relative z-10">
           ¿No tienes cuenta?{' '}
-          <Link to="/register" className="text-secondary hover:underline">
+          <Link to="/register" className="text-primary hover:text-[#00c3ff] hover:underline font-medium transition-colors">
             Regístrate aquí
           </Link>
         </p>

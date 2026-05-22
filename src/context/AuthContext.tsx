@@ -28,8 +28,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const loadProfile = async () => {
+  const loadProfile = async (): Promise<void> => {
     try {
       const profile = await authService.getProfile();
       setUser(profile);
@@ -48,30 +49,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
       }
       setLoading(false);
+      setIsAuthenticating(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   const loginWithGoogle = async () => {
-    await signInWithPopup(auth, googleProvider);
-    // onAuthStateChanged will handle fetching the profile
+    setIsAuthenticating(true);
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // onAuthStateChanged will handle fetching the profile and setting loading to false
+    } catch (error) {
+      setIsAuthenticating(false);
+      setLoading(false);
+      throw error;
+    }
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
+    setIsAuthenticating(true);
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
+      setIsAuthenticating(false);
+      setLoading(false);
+      throw error;
+    }
   };
 
   const registerWithEmail = async (email: string, pass: string) => {
-    await createUserWithEmailAndPassword(auth, email, pass);
+    setIsAuthenticating(true);
+    setLoading(true);
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
+      setIsAuthenticating(false);
+      setLoading(false);
+      throw error;
+    }
   };
 
   const logout = async () => {
+    setLoading(true);
     await signOut(auth);
   };
 
   const refreshProfile = async () => {
-    if (firebaseUser) {
+    if (auth.currentUser) {
       await loadProfile();
     }
   };
@@ -80,7 +107,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={{ 
       user, 
       firebaseUser, 
-      loading, 
+      loading: loading || isAuthenticating, 
       loginWithGoogle, 
       loginWithEmail, 
       registerWithEmail, 

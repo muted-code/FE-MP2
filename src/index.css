@@ -1,25 +1,50 @@
 @import "tailwindcss";
 
-:root {
-  --color-primary: #6366f1;
-  --color-secondary: #8b5cf6;
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-text: #f1f5f9;
-  --color-muted: #94a3b8;
+@theme {
+  --color-primary: #00f0ff;
+  --color-primary-focus: #00c3ff;
+  --color-secondary: #ff0055;
+  --color-bg: #090a0f;
+  --color-surface: rgba(20, 22, 30, 0.6);
+  --color-text: #ffffff;
+  --color-muted: #8b9bb4;
 }
 
-@theme {
-  --color-primary: var(--color-primary);
-  --color-secondary: var(--color-secondary);
-  --color-bg: var(--color-bg);
-  --color-surface: var(--color-surface);
-  --color-text: var(--color-text);
-  --color-muted: var(--color-muted);
+:root {
+  --color-primary: #00f0ff;
+  --color-secondary: #ff0055;
+  --color-bg: #090a0f;
+  --color-surface: rgba(20, 22, 30, 0.6);
+  --color-text: #ffffff;
+  --color-muted: #8b9bb4;
 }
 
 body {
   background-color: var(--color-bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.15), transparent 25%);
+  background-attachment: fixed;
   color: var(--color-text);
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.glass-panel {
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.input-neon {
+  background: rgba(10, 12, 16, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.input-neon:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
 }
