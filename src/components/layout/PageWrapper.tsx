@@ -1,4 +1,4 @@
-import React, { type ReactNode, useEffect, useState } from 'react';
+import React, { type ReactNode } from 'react';
 import Navbar from './Navbar';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
