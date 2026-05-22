@@ -28,7 +28,7 @@ const UserPanel: React.FC = () => {
       >
         <div className="relative">
           <img 
-            src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}+${user.lastName}&background=random`} 
+            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${user.name}&background=random`} 
             alt="User avatar" 
             className="w-10 h-10 rounded-full border-2 border-primary object-cover"
           />
@@ -44,7 +44,7 @@ const UserPanel: React.FC = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-surface border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl">
           <div className="p-4 border-b border-white/10 bg-white/5">
-            <p className="font-semibold text-white truncate">{user.name} {user.lastName}</p>
+            <p className="font-semibold text-white truncate">{user.name}</p>
             <p className="text-xs text-muted truncate">@{user.username}</p>
           </div>
           

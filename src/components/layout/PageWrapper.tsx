@@ -10,11 +10,6 @@ interface PageWrapperProps {
 
 const PageWrapper: React.FC<PageWrapperProps> = ({ children, ariaLabel }) => {
   const location = useLocation();
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-
-  useEffect(() => {
-    setIsFirstLoad(false);
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col relative bg-bg selection:bg-primary/30 overflow-hidden">
@@ -80,7 +75,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, ariaLabel }) => {
       </AnimatePresence>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar isFirstLoad={isFirstLoad} />
+        <Navbar />
         
         {/* Page Content Transition */}
         <AnimatePresence mode="wait">

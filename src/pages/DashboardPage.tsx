@@ -95,7 +95,7 @@ const DashboardPage: React.FC = () => {
                     <div className="w-full max-w-3xl aspect-video bg-black/50 rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl flex items-center justify-center">
                       <div className="grid grid-cols-2 w-full h-full gap-1 p-1">
                         <div className="bg-surface relative rounded-lg overflow-hidden flex items-center justify-center group">
-                          <img src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}`} className="w-24 h-24 rounded-full opacity-50 object-cover" />
+                          <img src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${user?.name}`} className="w-24 h-24 rounded-full opacity-50 object-cover" />
                           <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 rounded text-xs text-white backdrop-blur-sm">Tú (Hablando)</div>
                           <div className="absolute inset-0 border-2 border-primary/50 rounded-lg animate-pulse"></div>
                         </div>
