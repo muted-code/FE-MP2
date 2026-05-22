@@ -69,7 +69,8 @@ const RegisterPage: React.FC = () => {
       
       // 2. Guardar el perfil en el Backend
       await authService.register({
-        name: `${data.firstName} ${data.lastName}`,
+        name: data.firstName,
+        lastName: data.lastName || "",
         username: data.username,
         email: data.email,
       });
