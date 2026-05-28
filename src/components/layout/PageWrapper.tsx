@@ -86,7 +86,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, ariaLabel }) => {
             exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             aria-label={ariaLabel} 
-            className="flex-grow container mx-auto px-4 py-12 relative flex flex-col"
+            className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 relative flex flex-col"
           >
             {children}
           </motion.main>
@@ -96,4 +96,4 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, ariaLabel }) => {
   );
 };
 
-export default PageWrapper;
+export default PageWrapper; 

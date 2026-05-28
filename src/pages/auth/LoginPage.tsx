@@ -59,17 +59,18 @@ const LoginPage: React.FC = () => {
 
   return (
     <PageWrapper ariaLabel="Página de inicio de sesión">
-      <div className="max-w-md mx-auto glass-panel p-8 rounded-2xl relative overflow-hidden">
+      {/* Contenedor principal ajustado: max-w-lg para más anchura, mt-4 mb-8 para evitar que se corte */}
+      <div className="w-full max-w-lg mx-auto glass-panel p-8 sm:p-12 rounded-2xl relative overflow-hidden mt-4 mb-8">
         {/* Glow effect in background */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[50px] pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[50px] pointer-events-none"></div>
 
-        <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
+        <h1 className="text-3xl font-extrabold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
           Iniciar Sesión
         </h1>
         
         {errorMsg && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm shadow-[0_0_10px_rgba(239,68,68,0.2)]">
             {errorMsg}
           </div>
         )}
@@ -78,60 +79,60 @@ const LoginPage: React.FC = () => {
           role="form" 
           aria-label="Formulario de inicio de sesión" 
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 relative z-10"
+          className="space-y-8 relative z-10"
         >
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-muted">
+          <div className="space-y-3">
+            <label htmlFor="email" className="block text-sm font-medium text-muted ml-1">
               Correo Electrónico
             </label>
             <input
               id="email"
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+              className={`w-full px-5 py-3.5 input-neon rounded-xl text-text
                 ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="tu@email.com"
             />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-muted">
+          <div className="space-y-3">
+            <label htmlFor="password" className="block text-sm font-medium text-muted ml-1">
               Contraseña
             </label>
             <input
               id="password"
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-3 input-neon rounded-lg text-text
+              className={`w-full px-5 py-3.5 input-neon rounded-xl text-text
                 ${errors.password ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
               placeholder="••••••••"
             />
-            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.password.message}</p>}
           </div>
 
           <button 
             type="submit" 
-            className="w-full py-3 bg-gradient-to-r from-primary to-secondary hover:from-[#00c3ff] hover:to-[#ff0055] text-white font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex justify-center items-center gap-2 transform hover:scale-[1.02] active:scale-95" 
+            className="w-full mt-2 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#00c3ff] hover:to-[#ff0055] text-white font-bold rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex justify-center items-center gap-2 transform hover:scale-[1.02] active:scale-95" 
             disabled={isSubmitting || loading}
           >
-            <LogIn size={18} />
+            <LogIn size={20} />
             {isSubmitting || loading ? 'Iniciando...' : 'Entrar'}
           </button>
         </form>
 
-        <div className="my-6 flex items-center relative z-10">
+        <div className="my-8 flex items-center relative z-10">
           <div className="flex-grow border-t border-white/10"></div>
-          <span className="px-3 text-muted text-sm uppercase tracking-widest">O</span>
+          <span className="px-4 text-muted text-sm uppercase tracking-widest">O</span>
           <div className="flex-grow border-t border-white/10"></div>
         </div>
 
         <button 
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 backdrop-blur-sm transform hover:scale-[1.02] relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-3 backdrop-blur-sm transform hover:scale-[1.02] relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -142,7 +143,7 @@ const LoginPage: React.FC = () => {
           Continuar con Google
         </button>
 
-        <p className="mt-8 text-center text-sm text-muted relative z-10">
+        <p className="mt-10 text-center text-sm text-muted relative z-10">
           ¿No tienes cuenta?{' '}
           <Link to="/register" className="text-primary hover:text-[#00c3ff] hover:underline font-medium transition-colors">
             Regístrate aquí
