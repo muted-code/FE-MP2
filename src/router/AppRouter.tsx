@@ -5,7 +5,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import CompleteProfilePage from '../pages/auth/CompleteProfilePage';
 import DashboardPage from '../pages/DashboardPage';
-import { ProfilePage } from '../pages/ProfilePage'; 
+import ProfilePage from '../pages/ProfilePage'; 
 import RoomPage from '../pages/RoomPage';
 
 const AppRouter: React.FC = () => {
