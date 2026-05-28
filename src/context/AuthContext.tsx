@@ -55,11 +55,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
+  const ALLOWED_DOMAIN = '@correounivalle.edu.co';
+
   const loginWithGoogle = async () => {
     setIsAuthenticating(true);
     setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      // Validar dominio del correo
+      const email = result.user.email || '';
+      if (!email.endsWith(ALLOWED_DOMAIN)) {
+        await signOut(auth);
+        setIsAuthenticating(false);
+        setLoading(false);
+        throw { code: 'auth/unauthorized-domain', message: 'Solo se permiten correos institucionales (@correounivalle.edu.co)' };
+      }
       // onAuthStateChanged will handle fetching the profile and setting loading to false
     } catch (error) {
       setIsAuthenticating(false);

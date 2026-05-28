@@ -7,11 +7,17 @@ import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../services/authService';
 import PageWrapper from '../../components/layout/PageWrapper';
 
+const ALLOWED_DOMAIN = '@correounivalle.edu.co';
+
 const schema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
   username: z.string().min(3, 'El nombre de usuario debe tener al menos 3 caracteres').max(20, 'Máximo 20 caracteres'),
-  email: z.string().email('Correo electrónico inválido'),
+  email: z.string()
+    .email('Correo electrónico inválido')
+    .refine((email) => email.endsWith(ALLOWED_DOMAIN), {
+      message: 'Solo se permiten correos institucionales (@correounivalle.edu.co)',
+    }),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
@@ -175,7 +181,7 @@ const RegisterPage: React.FC = () => {
               className={`w-full px-4 py-3 input-neon rounded-lg text-text
                 ${errors.email ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}
               `}
-              placeholder="tu@email.com"
+              placeholder="tu.nombre@correounivalle.edu.co"
             />
             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
           </div>

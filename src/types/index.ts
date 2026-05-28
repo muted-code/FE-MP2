@@ -1,14 +1,15 @@
 export interface User {
   id: string;
+  uid?: string;
   name: string;
   username: string;
   email: string;
-  avatarUrl?: string;
+  avatar?: string;
 }
 
 export interface Room {
   id: string;
   name: string;
-  hostId: string;
+  createdBy: string;
   createdAt: string;
 }

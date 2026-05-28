@@ -1,7 +1,9 @@
-import React, { type ReactNode } from 'react';
+import React, { type ReactNode, useEffect } from 'react';
 import Navbar from './Navbar';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+// import { connectSocket, disconnectSocket } from '../../services/socketService';
 
 interface PageWrapperProps {
   children: ReactNode;
@@ -10,6 +12,23 @@ interface PageWrapperProps {
 
 const PageWrapper: React.FC<PageWrapperProps> = ({ children, ariaLabel }) => {
   const location = useLocation();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      // connectSocket().catch(console.error);
+    } else {
+      // disconnectSocket();
+    }
+    
+    return () => {
+      // We don't necessarily disconnect on every unmount of PageWrapper, 
+      // but since user state drives it, it's fine. Wait, PageWrapper unmounts on some layouts? 
+      // It's better to just let the user state effect handle it.
+      // We won't disconnect here on unmount to keep socket alive between pages 
+      // if PageWrapper remounts, but the `if (user)` will handle reconnection.
+    };
+  }, [user]);
 
   return (
     <div className="min-h-screen flex flex-col relative bg-bg selection:bg-primary/30 overflow-hidden">

@@ -28,7 +28,7 @@ const UserPanel: React.FC = () => {
       >
         <div className="relative">
           <img 
-            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${user.name}&background=random`} 
+            src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=random`} 
             alt="User avatar" 
             className="w-10 h-10 rounded-full border-2 border-primary object-cover"
           />
