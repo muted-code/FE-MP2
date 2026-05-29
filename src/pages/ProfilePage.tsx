@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom'; // <-- NUEVA IMPORTACIÓN
+import { createPortal } from 'react-dom';
 import PageWrapper from '../components/layout/PageWrapper';
 import { useAuth } from '../hooks/useAuth';
 import { getProfile, updateProfile, deleteProfile } from '../services/userService';
@@ -38,7 +38,8 @@ const compressImage = (file: File, maxSize = 256): Promise<string> => {
 };
 
 const ProfilePage: React.FC = () => {
-  const { logout, firebaseUser } = useAuth();
+  // AÑADIDO: Extraemos refreshProfile de useAuth
+  const { logout, firebaseUser, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -107,6 +108,10 @@ const ProfilePage: React.FC = () => {
     setSaving(true);
     try {
       await updateProfile({ ...profileData, avatar: avatarData });
+      
+      // AÑADIDO: Actualizamos el estado global para que el Navbar se entere del cambio sin recargar
+      await refreshProfile();
+      
       setToast({ isOpen: true, message: 'Perfil actualizado', description: 'Los cambios se han guardado correctamente.', type: 'success' });
     } catch (err: any) {
       console.error(err);
@@ -285,7 +290,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>,
-        document.body // Aquí le indicamos a React dónde renderizar el HTML del modal
+        document.body 
       )}
 
       <Toast 
