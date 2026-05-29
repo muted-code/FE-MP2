@@ -6,9 +6,8 @@ let socket: Socket | null = null;
 export const connectSocket = async () => {
   if (socket?.connected) return socket;
 
-  const url = import.meta.env.VITE_API_URL 
-    ? import.meta.env.VITE_API_URL.replace('/api', '') 
-    : 'http://localhost:3001';
+  // 👇 CAMBIAMOS LA URL PARA QUE APUNTE AL NUEVO SERVIDOR EN TIEMPO REAL (PUERTO 3002) 👇
+  const url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3002';
 
   // We can attach the auth token if needed
   const token = await auth.currentUser?.getIdToken();
@@ -21,11 +20,11 @@ export const connectSocket = async () => {
   });
 
   socket.on('connect', () => {
-    console.log('✅ Conectado al servidor de WebSockets:', socket?.id);
+    console.log('✅ Conectado al servidor de WebSockets (RT):', socket?.id);
   });
 
   socket.on('disconnect', () => {
-    console.log('❌ Desconectado de WebSockets');
+    console.log('❌ Desconectado de WebSockets (RT)');
   });
 
   return socket;
@@ -38,4 +37,4 @@ export const disconnectSocket = () => {
   }
 };
 
-export const getSocket = () => socket;
+export const getSocket = () => socket; 
