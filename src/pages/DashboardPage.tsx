@@ -15,14 +15,17 @@ const DashboardPage: React.FC = () => {
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedFriendHandle, setSelectedFriendHandle] = useState<string | null>(null);
+  
+  // Estados para Modales
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
+  const [roomToDelete, setRoomToDelete] = useState<string | null>(null); // <- NUEVO ESTADO
+  
   const [toast, setToast] = useState({ isOpen: false, message: '', description: '', type: 'success' as any });
 
   useEffect(() => {
     fetchRooms();
     
-    // Conectar socket
     if (user) {
       socket.auth = { username: user.username || user.name };
       socket.connect();
@@ -77,17 +80,27 @@ const DashboardPage: React.FC = () => {
     setSelectedRoomId(null);
   };
 
-  const handleDeleteRoom = async (roomId: string) => {
+  // 1. Esta función ahora solo ABRIRÁ el modal guardando el ID
+  const handleRequestDelete = (roomId: string) => {
+    setRoomToDelete(roomId);
+  };
+
+  // 2. Esta función ejecuta la eliminación real cuando el usuario confirma en el modal
+  const confirmDeleteRoom = async () => {
+    if (!roomToDelete) return;
+    
     try {
-      await deleteRoom(roomId);
-      setRooms(rooms.filter((r) => r.id !== roomId));
-      if (selectedRoomId === roomId) {
+      await deleteRoom(roomToDelete);
+      setRooms(rooms.filter((r) => r.id !== roomToDelete));
+      if (selectedRoomId === roomToDelete) {
         setSelectedRoomId(null);
       }
       setToast({ isOpen: true, message: 'Sala eliminada', description: 'La sala de estudio ha sido eliminada.', type: 'success' });
     } catch (err) {
       console.error('Error deleting room:', err);
       setToast({ isOpen: true, message: 'Error', description: 'No tienes permiso o no se pudo eliminar.', type: 'error' });
+    } finally {
+      setRoomToDelete(null); // Cerramos el modal
     }
   };
 
@@ -108,10 +121,9 @@ const DashboardPage: React.FC = () => {
           onCreateRoom={() => setShowCreateModal(true)}
           loadingRooms={loadingRooms}
           user={user}
-          onDeleteRoom={handleDeleteRoom}
+          onDeleteRoom={handleRequestDelete} /* Pasamos la función que abre el modal */
         />
 
-        {/* Main Content: Room or DM */}
         {selectedFriend ? (
           <DirectMessageView
             friend={selectedFriend}
@@ -128,7 +140,7 @@ const DashboardPage: React.FC = () => {
         )}
       </div>
 
-      {/* Create Room Modal */}
+      {/* Modal de Crear Sala */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-dash-panel border border-white/[0.08] rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-colors duration-300">
@@ -169,6 +181,42 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      {/* NUEVO: Modal de Confirmación para Eliminar Sala */}
+      {roomToDelete && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-dash-panel border border-red-500/20 rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.15)] w-full max-w-sm overflow-hidden transition-all duration-300 transform scale-100">
+            <div className="p-6">
+              {/* Icono de advertencia */}
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 mb-4 mx-auto">
+                <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white text-center mb-2">¿Eliminar esta sala?</h3>
+              <p className="text-sm text-muted/70 text-center mb-6">
+                Esta acción es irreversible. Se eliminará el espacio y todos perderán acceso.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRoomToDelete(null)}
+                  className="px-4 py-2 text-sm font-medium text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors w-full"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteRoom}
+                  className="px-4 py-2 text-sm font-medium bg-red-500/80 hover:bg-red-600 text-white rounded-lg transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)] w-full"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toast
         isOpen={toast.isOpen}
         message={toast.message}
@@ -180,4 +228,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default DashboardPage; 

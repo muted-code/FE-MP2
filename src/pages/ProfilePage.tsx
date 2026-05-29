@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom'; // <-- NUEVA IMPORTACIÓN
 import PageWrapper from '../components/layout/PageWrapper';
 import { useAuth } from '../hooks/useAuth';
 import { getProfile, updateProfile, deleteProfile } from '../services/userService';
@@ -46,6 +47,7 @@ const ProfilePage: React.FC = () => {
   const [avatarData, setAvatarData] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [toast, setToast] = useState({ isOpen: false, message: '', description: '', type: 'success' as any });
 
   useEffect(() => {
@@ -123,16 +125,16 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.')) return;
+  const confirmDelete = async () => {
     try {
       await deleteProfile();
-      // Clean up session and redirect
       await logout();
       navigate('/login');
     } catch (err) {
       console.error('Error deleting profile:', err);
       setToast({ isOpen: true, message: 'Error', description: 'No se pudo eliminar la cuenta.', type: 'error' });
+    } finally {
+      setShowDeleteModal(false);
     }
   };
 
@@ -224,7 +226,7 @@ const ProfilePage: React.FC = () => {
                 value={profileData.email} 
                 onChange={handleChange} 
                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all opacity-70"
-                disabled // Usually email is disabled or requires special flow
+                disabled 
               />
               <p className="text-xs text-muted mt-2">El correo electrónico no se puede modificar directamente aquí.</p>
             </div>
@@ -232,7 +234,7 @@ const ProfilePage: React.FC = () => {
             <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-between items-center border-t border-white/10">
               <button 
                 type="button" 
-                onClick={handleDelete}
+                onClick={() => setShowDeleteModal(true)}
                 className="w-full sm:w-auto px-6 py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl font-medium transition-all duration-300 border border-red-500/30"
               >
                 Eliminar Cuenta
@@ -250,6 +252,42 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
       
+      {/* Modal de Confirmación "Teletransportado" al body con createPortal */}
+      {showDeleteModal && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 transition-all duration-300">
+          <div className="bg-dash-panel border border-red-500/20 rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.15)] w-full max-w-sm overflow-hidden transition-all duration-300 transform scale-100">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 mb-4 mx-auto">
+                <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white text-center mb-2">¿Eliminar cuenta?</h3>
+              <p className="text-sm text-muted/70 text-center mb-6">
+                ¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors w-full"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  className="px-4 py-2 text-sm font-medium bg-red-500/80 hover:bg-red-600 text-white rounded-lg transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)] w-full"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body // Aquí le indicamos a React dónde renderizar el HTML del modal
+      )}
+
       <Toast 
         isOpen={toast.isOpen} 
         message={toast.message} 
@@ -261,5 +299,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
-
+export default ProfilePage; 

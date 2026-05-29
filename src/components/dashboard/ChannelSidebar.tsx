@@ -90,9 +90,7 @@ const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriend
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (window.confirm('¿Eliminar esta sala?')) {
-                        onDeleteRoom(room.id);
-                      }
+                      onDeleteRoom(room.id); // <-- Ajuste realizado aquí
                     }}
                     className="absolute right-1 opacity-0 group-hover/ch:opacity-100 p-1 text-muted hover:text-red-400 hover:bg-red-500/10 rounded transition-all"
                     title="Eliminar sala"
@@ -168,4 +166,4 @@ const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriend
   );
 };
 
-export default ChannelSidebar;
+export default ChannelSidebar; 
