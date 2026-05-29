@@ -7,6 +7,7 @@ import CompleteProfilePage from '../pages/auth/CompleteProfilePage';
 import DashboardPage from '../pages/DashboardPage';
 import ProfilePage from '../pages/ProfilePage'; 
 import RoomPage from '../pages/RoomPage';
+import JoinRoomPage from '../pages/JoinRoomPage'; // Ajusta la ruta si es necesario
 
 const AppRouter: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const AppRouter: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/room/:roomId" element={<RoomPage />} />
+          <Route path="/join/:id" element={<JoinRoomPage />} />
         </Route>
 
         {/* Fallback */}

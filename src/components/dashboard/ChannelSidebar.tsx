@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Room } from '../../types';
-import { Hash, Plus, Users, Volume2, ChevronDown, Search, Trash2 } from 'lucide-react';
+// IMPORTAMOS LogIn PARA EL BOTÓN DE UNIRSE
+import { Hash, Plus, Users, Volume2, ChevronDown, Search, Trash2, Pencil, LogIn } from 'lucide-react';
 
 export interface Friend {
   name: string;
@@ -21,12 +22,26 @@ interface Props {
   onSelectRoom: (id: string) => void;
   onSelectFriend: (handle: string) => void;
   onCreateRoom: () => void;
+  onJoinRoomClick: () => void; // <-- Nueva prop para unirse
   loadingRooms: boolean;
   user?: any;
   onDeleteRoom?: (id: string) => void;
+  onEditRoom?: (room: Room) => void;
 }
 
-const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriendHandle, onSelectRoom, onSelectFriend, onCreateRoom, loadingRooms, user, onDeleteRoom }) => {
+const ChannelSidebar: React.FC<Props> = ({ 
+  rooms, 
+  selectedRoomId, 
+  selectedFriendHandle, 
+  onSelectRoom, 
+  onSelectFriend, 
+  onCreateRoom,
+  onJoinRoomClick, // <-- Recibimos la nueva prop
+  loadingRooms, 
+  user, 
+  onDeleteRoom,
+  onEditRoom 
+}) => {
   return (
     <div className="w-60 flex-shrink-0 flex flex-col border-r border-white/[0.06] bg-dash-sidebar/80 transition-colors duration-300">
       {/* Server Header */}
@@ -51,13 +66,22 @@ const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriend
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted/70 group-hover:text-muted transition-colors">
               Llamadas
             </span>
-            <button 
-              onClick={onCreateRoom}
-              className="text-muted/70 hover:text-white transition-colors p-0.5 rounded hover:bg-white/10"
-              title="Crear sala"
-            >
-              <Plus size={14} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={onJoinRoomClick}
+                className="text-muted/70 hover:text-white transition-colors p-0.5 rounded hover:bg-white/10"
+                title="Unirse a una sala (por ID)"
+              >
+                <LogIn size={14} />
+              </button>
+              <button 
+                onClick={onCreateRoom}
+                className="text-muted/70 hover:text-white transition-colors p-0.5 rounded hover:bg-white/10"
+                title="Crear sala"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
           </div>
 
           {loadingRooms ? (
@@ -65,18 +89,26 @@ const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriend
               <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-primary/50"></div>
             </div>
           ) : rooms.length === 0 ? (
-            <button 
-              onClick={onCreateRoom}
-              className="w-full text-left px-2 py-1.5 text-muted/60 text-sm hover:text-muted transition-colors rounded"
-            >
-              + Crear primera sala...
-            </button>
+            <div className="flex flex-col gap-1">
+              <button 
+                onClick={onCreateRoom}
+                className="w-full text-left px-2 py-1.5 text-muted/60 text-sm hover:text-white hover:bg-white/[0.04] transition-colors rounded"
+              >
+                + Crear sala...
+              </button>
+              <button 
+                onClick={onJoinRoomClick}
+                className="w-full text-left px-2 py-1.5 text-muted/60 text-sm hover:text-white hover:bg-white/[0.04] transition-colors rounded"
+              >
+                → Unirse con ID...
+              </button>
+            </div>
           ) : (
             rooms.map((room) => (
               <div key={room.id} className="relative group/ch w-full flex items-center">
                 <button
                   onClick={() => onSelectRoom(room.id)}
-                  className={`flex-1 flex items-center gap-1.5 px-2 py-[5px] rounded text-sm transition-all pr-8 ${
+                  className={`flex-1 flex items-center gap-1.5 px-2 py-[5px] rounded text-sm transition-all pr-14 ${
                     selectedRoomId === room.id
                       ? 'bg-white/[0.08] text-white'
                       : 'text-muted/80 hover:text-white/90 hover:bg-white/[0.04]'
@@ -86,17 +118,34 @@ const ChannelSidebar: React.FC<Props> = ({ rooms, selectedRoomId, selectedFriend
                   <span className="truncate">{room.name}</span>
                 </button>
                 
-                {(user?.id === room.createdBy || user?.uid === room.createdBy) && onDeleteRoom && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteRoom(room.id); // <-- Ajuste realizado aquí
-                    }}
-                    className="absolute right-1 opacity-0 group-hover/ch:opacity-100 p-1 text-muted hover:text-red-400 hover:bg-red-500/10 rounded transition-all"
-                    title="Eliminar sala"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                {/* Contenedor de acciones (Editar y Eliminar) */}
+                {(user?.id === room.createdBy || user?.uid === room.createdBy) && (
+                  <div className="absolute right-1 opacity-0 group-hover/ch:opacity-100 flex items-center gap-0.5 transition-all">
+                    {onEditRoom && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditRoom(room);
+                        }}
+                        className="p-1 text-muted hover:text-primary hover:bg-primary/10 rounded transition-all"
+                        title="Editar sala"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    )}
+                    {onDeleteRoom && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteRoom(room.id);
+                        }}
+                        className="p-1 text-muted hover:text-red-400 hover:bg-red-500/10 rounded transition-all"
+                        title="Eliminar sala"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))
