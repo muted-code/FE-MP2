@@ -9,7 +9,6 @@ import type { User } from '../types';
 import axios from 'axios';
 import { Camera } from 'lucide-react';
 
-/** Redimensiona y comprime una imagen a JPEG base64 */
 const compressImage = (file: File, maxSize = 256): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -20,12 +19,9 @@ const compressImage = (file: File, maxSize = 256): Promise<string> => {
         canvas.width = maxSize;
         canvas.height = maxSize;
         const ctx = canvas.getContext('2d')!;
-        
-        // Recortar al centro (cuadrado)
         const minDim = Math.min(img.width, img.height);
         const sx = (img.width - minDim) / 2;
         const sy = (img.height - minDim) / 2;
-        
         ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, maxSize, maxSize);
         resolve(canvas.toDataURL('image/jpeg', 0.8));
       };
@@ -38,31 +34,48 @@ const compressImage = (file: File, maxSize = 256): Promise<string> => {
 };
 
 const ProfilePage: React.FC = () => {
-  // AÑADIDO: Extraemos refreshProfile de useAuth
   const { logout, firebaseUser, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileData, setProfileData] = useState<Partial<User>>({ name: '', username: '', email: '' });
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarData, setAvatarData] = useState<string>('');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  
+  const [initialProfileData, setInitialProfileData] = useState<Partial<User>>({ name: '', username: '', email: '' });
+  const [initialAvatarData, setInitialAvatarData] = useState<string>('');
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+
   const [toast, setToast] = useState({ isOpen: false, message: '', description: '', type: 'success' as any });
+
+  const hasUnsavedChanges = 
+    profileData.name !== initialProfileData.name ||
+    profileData.username !== initialProfileData.username ||
+    avatarData !== initialAvatarData;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
-        setProfileData({
+        const loadedData = {
           name: data.name || '',
           username: data.username || '',
           email: data.email || ''
-        });
+        };
         const currentAvatar = data.avatar || firebaseUser?.photoURL || '';
+        
+        setProfileData(loadedData);
         setAvatarPreview(currentAvatar || null);
         setAvatarData(currentAvatar);
+        
+        setInitialProfileData(loadedData);
+        setInitialAvatarData(currentAvatar);
       } catch (err) {
         console.error('Error fetching profile:', err);
       } finally {
@@ -70,7 +83,40 @@ const ProfilePage: React.FC = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [firebaseUser]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; 
+      }
+    };
+
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (!hasUnsavedChanges) return;
+
+      const target = e.target as HTMLElement;
+      const link = target.closest('a');
+
+      if (link && link.href && link.href.includes(window.location.host)) {
+        e.preventDefault(); 
+        e.stopPropagation(); 
+        
+        const url = new URL(link.href);
+        setPendingPath(url.pathname + url.search + url.hash);
+        setShowUnsavedModal(true); 
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('click', handleGlobalClick, { capture: true });
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('click', handleGlobalClick, { capture: true });
+    };
+  }, [hasUnsavedChanges]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -99,20 +145,22 @@ const ProfilePage: React.FC = () => {
       setAvatarPreview(compressed);
       setAvatarData(compressed);
     } catch {
-      setToast({ isOpen: true, message: 'Error', description: 'Error al procesar la imagen. Intenta con otra.', type: 'error' });
+      setToast({ isOpen: true, message: 'Error', description: 'Error al procesar la imagen.', type: 'error' });
     }
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // NUEVO: Lógica principal de guardado extraída a una función independiente
+  const saveProfileData = async (): Promise<boolean> => {
     setSaving(true);
     try {
       await updateProfile({ ...profileData, avatar: avatarData });
-      
-      // AÑADIDO: Actualizamos el estado global para que el Navbar se entere del cambio sin recargar
       await refreshProfile();
       
+      setInitialProfileData(profileData);
+      setInitialAvatarData(avatarData);
+      
       setToast({ isOpen: true, message: 'Perfil actualizado', description: 'Los cambios se han guardado correctamente.', type: 'success' });
+      return true;
     } catch (err: any) {
       console.error(err);
       if (axios.isAxiosError(err) && err.response?.status === 400) {
@@ -123,10 +171,35 @@ const ProfilePage: React.FC = () => {
           type: 'error' 
         });
       } else {
-        setToast({ isOpen: true, message: 'Error', description: 'Ocurrió un error inesperado al actualizar el perfil.', type: 'error' });
+        setToast({ isOpen: true, message: 'Error', description: 'Ocurrió un error al actualizar el perfil.', type: 'error' });
       }
+      return false;
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Handler para el botón normal del formulario
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await saveProfileData();
+  };
+
+  // NUEVO: Handler para el botón de "Guardar y salir" en el modal
+  const handleSaveAndLeave = async () => {
+    const success = await saveProfileData();
+    if (success) {
+      setShowUnsavedModal(false);
+      if (pendingPath) {
+        navigate(pendingPath);
+      }
+    }
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    setShowUnsavedModal(false);
+    if (pendingPath) {
+      navigate(pendingPath);
     }
   };
 
@@ -162,7 +235,6 @@ const ProfilePage: React.FC = () => {
           <h1 className="text-3xl font-bold text-white mb-6">Mi Perfil</h1>
           
           <form onSubmit={handleUpdate} className="space-y-6">
-            {/* Avatar upload */}
             <div className="flex flex-col items-center mb-2">
               <input
                 ref={fileInputRef}
@@ -176,7 +248,6 @@ const ProfilePage: React.FC = () => {
                 type="button"
                 onClick={handleAvatarClick}
                 className="relative w-24 h-24 rounded-full group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-transparent transition-transform hover:scale-105 active:scale-95"
-                aria-label="Cambiar foto de perfil"
               >
                 {avatarPreview ? (
                   <img 
@@ -189,7 +260,6 @@ const ProfilePage: React.FC = () => {
                     {(profileData.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
-                {/* Overlay con ícono de cámara */}
                 <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                   <Camera size={28} className="text-white" />
                 </div>
@@ -247,8 +317,8 @@ const ProfilePage: React.FC = () => {
               
               <button 
                 type="submit" 
-                disabled={saving}
-                className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-cyan-400 text-white rounded-xl font-medium transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] disabled:opacity-50"
+                disabled={saving || !hasUnsavedChanges} 
+                className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-cyan-400 text-white rounded-xl font-medium transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] disabled:opacity-50 disabled:hover:shadow-none disabled:cursor-not-allowed"
               >
                 {saving ? 'Guardando...' : 'Guardar Cambios'}
               </button>
@@ -257,10 +327,10 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
       
-      {/* Modal de Confirmación "Teletransportado" al body con createPortal */}
+      {/* MODAL: Eliminar Cuenta */}
       {showDeleteModal && createPortal(
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 transition-all duration-300">
-          <div className="bg-dash-panel border border-red-500/20 rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.15)] w-full max-w-sm overflow-hidden transition-all duration-300 transform scale-100">
+          <div className="bg-dash-panel border border-red-500/20 rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.15)] w-full max-w-sm overflow-hidden transition-all duration-300">
             <div className="p-6">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 mb-4 mx-auto">
                 <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -285,6 +355,55 @@ const ProfilePage: React.FC = () => {
                   className="px-4 py-2 text-sm font-medium bg-red-500/80 hover:bg-red-600 text-white rounded-lg transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)] w-full"
                 >
                   Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body 
+      )}
+
+      {/* MODAL: Cambios sin guardar (Ahora con 3 botones) */}
+      {showUnsavedModal && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 transition-all duration-300">
+          <div className="bg-dash-panel border border-orange-500/20 rounded-xl shadow-[0_0_30px_rgba(249,115,22,0.15)] w-full max-w-sm overflow-hidden transition-all duration-300">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/10 mb-4 mx-auto">
+                <svg className="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white text-center mb-2">Cambios sin guardar</h3>
+              <p className="text-sm text-muted/70 text-center mb-6">
+                Tienes modificaciones en tu perfil. ¿Qué deseas hacer con estos cambios?
+              </p>
+              <div className="flex flex-col gap-3">
+                {/* Botón 1: Guardar y salir (Llamado a la acción principal) */}
+                <button
+                  type="button"
+                  onClick={handleSaveAndLeave}
+                  disabled={saving}
+                  className="px-4 py-2.5 text-sm font-medium bg-primary hover:bg-cyan-400 text-white rounded-lg transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)] w-full flex justify-center items-center disabled:opacity-50"
+                >
+                  {saving ? 'Guardando...' : 'Guardar y salir'}
+                </button>
+                
+                {/* Botón 2: Salir sin guardar (Acción destructiva pero válida) */}
+                <button
+                  type="button"
+                  onClick={handleLeaveWithoutSaving}
+                  className="px-4 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors w-full"
+                >
+                  Salir sin guardar
+                </button>
+                
+                {/* Botón 3: Continuar editando (Neutral) */}
+                <button
+                  type="button"
+                  onClick={() => setShowUnsavedModal(false)}
+                  className="px-4 py-2.5 text-sm font-medium text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors w-full"
+                >
+                  Continuar editando
                 </button>
               </div>
             </div>
