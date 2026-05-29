@@ -38,17 +38,21 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     fetchRooms();
-    
-    if (user) {
-      socket.auth = { username: user.username || user.name };
-      socket.connect();
-    }
+  }, []);
+
+  // Socket: conectar cuando el usuario esté cargado
+  useEffect(() => {
+    if (!user) return;
+
+    socket.auth = { user: { name: user.name, username: user.username } };
+    socket.connect();
     
     socket.on('connect', () => {
       console.log('Conectado al servidor de Sockets:', socket.id);
     });
 
     return () => {
+      socket.off('connect');
       socket.disconnect();
     };
   }, [user]);
