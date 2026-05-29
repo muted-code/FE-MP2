@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
     fetchRooms();
     
     if (user) {
-      socket.auth = { username: user.username || user.name };
+      socket.auth = { user };
       socket.connect();
     }
     
