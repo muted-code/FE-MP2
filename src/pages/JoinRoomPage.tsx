@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getRoomById } from '../services/roomService';
 import PageWrapper from '../components/layout/PageWrapper'; // Ajusta la ruta si es necesario

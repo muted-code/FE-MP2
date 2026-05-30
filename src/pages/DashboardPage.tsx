@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 // Importamos getRoomById para poder cargar la sala mediante el ID
 import { getRooms, createRoom, deleteRoom, updateRoom, getRoomById } from '../services/roomService';
@@ -13,8 +13,7 @@ import Navbar from '../components/layout/Navbar';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  // location y navigate eliminados por unused
   
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
